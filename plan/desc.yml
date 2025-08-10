@@ -1,0 +1,12 @@
+- 1:
+  - meta.json:
+    - resolution
+    - size
+    - ext
+    - url
+  - thumbnail.png - size <TBD>
+  - images (image with it's variants)
+    - 1.png
+    - 2.png
+    - 3.jpg
+
