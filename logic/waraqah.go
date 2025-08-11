@@ -1,8 +1,7 @@
 package logic
 
 import (
-	"fmt"
-
+	"github.com/0xdevar/waraqah"
 	"github.com/0xdevar/waraqah/repos"
 )
 
@@ -14,26 +13,34 @@ func NewWaraqah(repo *repos.Git) Waraqah {
 	return Waraqah{repo}
 }
 
-func (s *Waraqah) Load() {
-	out, _ := s.repo.GetWallpapers()
+func (s *Waraqah) Load(
+	producer chan<- []waraqah.WallpaperCollection,
+	index <-chan int,
+	maxChunk int,
+) error {
+	wallpapers, err := s.repo.GetWallpapers()
 
-	for i, f := range out {
-		fmt.Printf("[%d] %s\n", i+1, f.Name)
+	if err != nil {
+		return err
 	}
 
-	var choice int
-	fmt.Print("Select image number to download: ")
-	fmt.Scanln(&choice)
+	var pageSize = maxChunk % len(wallpapers)
 
-	if choice < 1 || choice > len(out) {
-		fmt.Println("Invalid selection")
-		return
-	}
+	for {
+		i, ok := <-index
 
-	selected := out[choice-1]
-	if err := s.repo.DownloadWallpaper(selected); err != nil {
-		fmt.Println("Download failed:", err)
-	} else {
-		fmt.Println("Downloaded:", selected.Name)
+		if !ok {
+			return nil
+		}
+
+		if i >= len(wallpapers) || i < 0 {
+			i = 0
+		}
+
+		println(i)
+
+		wallpapers := wallpapers[i*pageSize : ((i + 1) * pageSize)]
+
+		producer <- wallpapers
 	}
 }

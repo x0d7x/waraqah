@@ -58,10 +58,13 @@ type metaType struct {
 	Images []metaImage `json:"images"`
 }
 
-func runGitCommand(dir, arg string) (string, error) {
+func runGitCommand(dir *string, arg string) (string, error) {
 	args := strings.Fields(arg)
 	cmd := exec.Command("git", args...)
-	cmd.Dir = dir
+
+	if dir != nil {
+		cmd.Dir = *dir
+	}
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -115,7 +118,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 			s.owner, s.repo, s.branch, s.dest)
 
 		// TODO: change directory to something else
-		if _, err := runGitCommand("./", gitCmd); err != nil {
+		if _, err := runGitCommand(nil, gitCmd); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
@@ -124,21 +127,21 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 	}
 
 	{
-		if _, err := runGitCommand(s.dest, "sparse-checkout init --no-cone"); err != nil {
+		if _, err := runGitCommand(&s.dest, "sparse-checkout init --no-cone"); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
 			}
 		}
 
-		if _, err := runGitCommand(s.dest, "sparse-checkout set ''"); err != nil {
+		if _, err := runGitCommand(&s.dest, "sparse-checkout set ''"); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
 			}
 		}
 
-		if _, err := runGitCommand(s.dest, "checkout"); err != nil {
+		if _, err := runGitCommand(&s.dest, "checkout"); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
@@ -147,7 +150,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 	}
 
 	{
-		filesAsString, err := runGitCommand(s.dest, "ls-tree main -d --name-only")
+		filesAsString, err := runGitCommand(&s.dest, "ls-tree main -d --name-only")
 
 		if err != nil {
 			return nil, &GitError{
@@ -158,7 +161,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 
 		fileNames := strings.SplitSeq(strings.TrimSpace(filesAsString), "\n")
 
-		if _, err = runGitCommand(s.dest, "sparse-checkout add **/*.json"); err != nil {
+		if _, err = runGitCommand(&s.dest, "sparse-checkout add **/*.json"); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
@@ -193,7 +196,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 func (s *Git) DownloadWallpaper(wallpaper w.WallpaperCollection) error {
 	folder := wallpaper.Name
 
-	if _, err := runGitCommand(s.dest, fmt.Sprintf("sparse-checkout add %s", folder)); err != nil {
+	if _, err := runGitCommand(&s.dest, fmt.Sprintf("sparse-checkout add %s", folder)); err != nil {
 		return &GitError{
 			Message: err.Error(),
 			Git:     s,
