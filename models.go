@@ -11,6 +11,7 @@ type Wallpaper struct {
 }
 
 type WallpaperCollection struct {
-	Name   string
-	Images []Wallpaper
+	Name     string
+	Thumnail string
+	Images   []Wallpaper
 }

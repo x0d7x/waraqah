@@ -161,7 +161,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 
 		fileNames := strings.SplitSeq(strings.TrimSpace(filesAsString), "\n")
 
-		if _, err = runGitCommand(&s.dest, "sparse-checkout add **/*.json"); err != nil {
+		if _, err = runGitCommand(&s.dest, "sparse-checkout add **/*.json **/thumbnail.jpg"); err != nil {
 			return nil, &GitError{
 				Message: err.Error(),
 				Git:     s,
@@ -176,7 +176,7 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 				var out []w.Wallpaper
 
 				for _, image := range meta.Images {
-					path := fmt.Sprintf("%s/%s", s.dest, image.Name)
+					path := fmt.Sprintf("%s/%s/images/%s", s.dest, fileName, image.Name)
 					out = append(out, toImage(path, image))
 				}
 
@@ -184,8 +184,9 @@ func (s *Git) GetWallpapers() (out []w.WallpaperCollection, err error) {
 			}()
 
 			out = append(out, w.WallpaperCollection{
-				Name:   fileName,
-				Images: images,
+				Name:     fileName,
+				Thumnail: fmt.Sprintf("%s/%s/%s", s.dest, fileName, "thumbnail.jpg"),
+				Images:   images,
 			})
 		}
 	}
