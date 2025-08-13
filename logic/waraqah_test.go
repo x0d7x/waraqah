@@ -68,7 +68,7 @@ func TestGetWallpapers(t *testing.T) {
 	}
 }
 
-func TestNext(t *testing.T) {
+func TestAdvance(t *testing.T) {
 
 	{
 		w := Waraqah{wallpapers: ws, cursor: 0, chunkCount: 2}
@@ -79,36 +79,36 @@ func TestNext(t *testing.T) {
 			return
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[1:3]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
 			return
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[2:4]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[4:6], items)
 			return
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[3:5]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
 			return
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[4:6]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[8:10], items)
 			return
 		}
 
-		w.Next()
-		w.Next()
-		w.Next()
-		w.Next()
-		w.Next()
-		items = w.Next()
+		w.Advance()
+		w.Advance()
+		w.Advance()
+		w.Advance()
+		w.Advance()
+		items = w.Advance()
 		if len(items) != 0 {
 			t.Errorf("expected length > 0, got %v", len(items))
 			return
@@ -116,7 +116,7 @@ func TestNext(t *testing.T) {
 	}
 }
 
-func TestPrev(t *testing.T) {
+func TestRetreat(t *testing.T) {
 
 	{
 		w := Waraqah{wallpapers: ws, cursor: 0, chunkCount: 2}
@@ -127,38 +127,38 @@ func TestPrev(t *testing.T) {
 			return
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[4:6]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
 			return
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[3:5]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[4:6], items)
 			return
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[2:4]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
 			return
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[1:3]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[0:2], items)
 			return
 		}
 
-		w.Prev()
-		items = w.Prev()
+		w.Retreat()
+		items = w.Retreat()
 		if len(items) != 0 {
 			t.Errorf("expected length > 0, got %v", len(items))
 			return
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if len(items) != 0 {
 			t.Errorf("expected length > 0, got %v", len(items))
 			return
@@ -166,7 +166,7 @@ func TestPrev(t *testing.T) {
 	}
 }
 
-func TestNextPrev(t *testing.T) {
+func TestAdvanceRetreat(t *testing.T) {
 	{
 		w := Waraqah{wallpapers: ws, cursor: 0, chunkCount: 4}
 
@@ -175,63 +175,121 @@ func TestNextPrev(t *testing.T) {
 			t.Errorf("expected %v, got %v", w.wallpapers[0], items[0])
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[2:6]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[1:5]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[0:2], items)
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[2:6]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[1:5]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[0:4], items)
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[2:6]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[3:7]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[4:6], items)
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[4:8]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if reflect.DeepEqual(items, ws[5:9]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[8:10], items)
 		}
 
 		for range 4 {
-			w.Next()
+			w.Advance()
 		}
 
-		items = w.Next()
+		items = w.Advance()
 		if len(items) != 0 {
 			t.Errorf("expected length > 0, got %v", len(items))
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[9:10]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[8:10], items)
 		}
 
-		items = w.Prev()
+		items = w.Retreat()
 		if reflect.DeepEqual(items, ws[8:10]) != true {
 			t.Errorf("expected %v, got %v", w.wallpapers[2:8], items)
+		}
+	}
+}
+
+func TestNextPrev(t *testing.T) {
+	{
+		w := Waraqah{wallpapers: ws, cursor: 0, chunkCount: 2}
+
+		items := w.GetWallpapers(0)
+		if reflect.DeepEqual(items, ws[0:2]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[0], items[0])
+		}
+
+		items = w.Next()
+		if reflect.DeepEqual(items, ws[2:4]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
+		}
+
+		items = w.Prev()
+		if reflect.DeepEqual(items, ws[0:2]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[0:2], items)
+		}
+
+		items = w.Next()
+		if reflect.DeepEqual(items, ws[2:4]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[2:4], items)
+		}
+
+		items = w.Next()
+		if reflect.DeepEqual(items, ws[4:6]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[4:6], items)
+		}
+
+		items = w.Next()
+		if reflect.DeepEqual(items, ws[6:8]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
+		}
+
+		items = w.Next()
+		if reflect.DeepEqual(items, ws[8:10]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[4:6], items)
+		}
+
+		items = w.Next()
+		if len(items) != 0 {
+			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
+		}
+
+		w.Next()
+
+		items = w.Prev()
+		if reflect.DeepEqual(items, ws[8:10]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[8:10], items)
+		}
+
+		items = w.Prev()
+		if reflect.DeepEqual(items, ws[6:8]) != true {
+			t.Errorf("expected %v, got %v", w.wallpapers[6:8], items)
 		}
 	}
 }

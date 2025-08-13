@@ -68,7 +68,7 @@ func (s *Waraqah) GetWallpapers(page int) []waraqah.WallpaperCollection {
 	return s.wallpapers[start:end]
 }
 
-func (s *Waraqah) Next() []waraqah.WallpaperCollection {
+func (s *Waraqah) Advance() []waraqah.WallpaperCollection {
 	i := s.cursor + 1
 	start, end := s._seek(i, s.chunkCount)
 
@@ -79,8 +79,30 @@ func (s *Waraqah) Next() []waraqah.WallpaperCollection {
 	return s.wallpapers[start:end]
 }
 
-func (s *Waraqah) Prev() []waraqah.WallpaperCollection {
+func (s *Waraqah) Retreat() []waraqah.WallpaperCollection {
 	i := s.cursor - 1
+	start, end := s._seek(i, s.chunkCount)
+
+	if start == -1 {
+		return []waraqah.WallpaperCollection{}
+	}
+
+	return s.wallpapers[start:end]
+}
+
+func (s *Waraqah) Prev() []waraqah.WallpaperCollection {
+	i := s.cursor - s.chunkCount
+	start, end := s._seek(i, s.chunkCount)
+
+	if start == -1 {
+		return []waraqah.WallpaperCollection{}
+	}
+
+	return s.wallpapers[start:end]
+}
+
+func (s *Waraqah) Next() []waraqah.WallpaperCollection {
+	i := s.cursor + s.chunkCount
 	start, end := s._seek(i, s.chunkCount)
 
 	if start == -1 {
