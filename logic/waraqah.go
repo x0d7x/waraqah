@@ -7,17 +7,18 @@ import (
 
 type Waraqah struct {
 	wallpapers []waraqah.WallpaperCollection
-	page       int
+	cursor     int
+	chunkCount int
 }
 
-func RetrieveWallpapers(repo *repos.Git) (Waraqah, error) {
+func RetrieveWallpapers(repo *repos.Git, chunkCount int) (Waraqah, error) {
 	wallpapers, err := repo.GetWallpapers()
 
 	if err != nil {
 		return Waraqah{}, err
 	}
 
-	waraqah := Waraqah{wallpapers, 1}
+	waraqah := Waraqah{wallpapers, 0, chunkCount}
 
 	return waraqah, nil
 }
@@ -27,20 +28,20 @@ func (s *Waraqah) _seek(page, length int) (int, int) {
 		return -1, -1
 	}
 
-	pageIndex := page - 1
+	pageIndex := page
 
 	if pageIndex < 0 {
 		return -1, -1
 	}
 
-	start := pageIndex * length
+	start := pageIndex
 	end := start + length
 
-	if start == len(s.wallpapers) {
+	if start > len(s.wallpapers) {
 		return -1, -1
 	}
 
-	if start >= len(s.wallpapers) {
+	if start > len(s.wallpapers) {
 		start = len(s.wallpapers) - length
 	}
 
@@ -48,7 +49,7 @@ func (s *Waraqah) _seek(page, length int) (int, int) {
 		end = len(s.wallpapers)
 	}
 
-	s.page = page
+	s.cursor = page
 
 	return start, end
 }
@@ -57,8 +58,8 @@ func (s *Waraqah) Length() int {
 	return len(s.wallpapers)
 }
 
-func (s *Waraqah) GetWallpapers(page, length int) []waraqah.WallpaperCollection {
-	start, end := s._seek(page, length)
+func (s *Waraqah) GetWallpapers(page int) []waraqah.WallpaperCollection {
+	start, end := s._seek(page, s.chunkCount)
 
 	if start == -1 {
 		return []waraqah.WallpaperCollection{}
@@ -67,10 +68,9 @@ func (s *Waraqah) GetWallpapers(page, length int) []waraqah.WallpaperCollection 
 	return s.wallpapers[start:end]
 }
 
-func (s *Waraqah) Next(length int) []waraqah.WallpaperCollection {
-	i := s.page + 1
-	start, end := s._seek(i, length)
-	println(i, s.page, start, end)
+func (s *Waraqah) Next() []waraqah.WallpaperCollection {
+	i := s.cursor + 1
+	start, end := s._seek(i, s.chunkCount)
 
 	if start == -1 {
 		return []waraqah.WallpaperCollection{}
@@ -79,9 +79,9 @@ func (s *Waraqah) Next(length int) []waraqah.WallpaperCollection {
 	return s.wallpapers[start:end]
 }
 
-func (s *Waraqah) Prev(length int) []waraqah.WallpaperCollection {
-	i := s.page - 1
-	start, end := s._seek(i, length)
+func (s *Waraqah) Prev() []waraqah.WallpaperCollection {
+	i := s.cursor - 1
+	start, end := s._seek(i, s.chunkCount)
 
 	if start == -1 {
 		return []waraqah.WallpaperCollection{}

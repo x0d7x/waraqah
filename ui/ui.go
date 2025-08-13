@@ -25,9 +25,7 @@ func Start() {
 	log.Println(tmp)
 
 	repo := repos.NewGitRepo("0xdevar", "0xwaraqat", "main", tmp)
-	waraqahInstance, err := logic.RetrieveWallpapers(repo)
-
-	// pages := waraqahInstance.Length() / 2
+	waraqahInstance, err := logic.RetrieveWallpapers(repo, 4)
 
 	var wallpapers []waraqah.WallpaperCollection
 
@@ -64,7 +62,7 @@ func Start() {
 		// if i < pages {
 		// 	i = 0
 		// }
-		wallpapers = waraqahInstance.Prev(2)
+		wallpapers = waraqahInstance.Prev()
 		seek()
 	})
 
@@ -73,7 +71,7 @@ func Start() {
 		// 	i = pages
 		// }
 
-		wallpapers = waraqahInstance.Next(2)
+		wallpapers = waraqahInstance.Next()
 
 		seek()
 	})
